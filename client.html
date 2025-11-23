@@ -1,0 +1,705 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Ordering Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #f5576c;
+        }
+
+        .order-form {
+            padding: 40px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #333;
+            font-size: 1.1em;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1em;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #f5576c;
+        }
+
+        .menu-items {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .menu-item {
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .menu-item:hover {
+            border-color: #f5576c;
+            transform: translateY(-2px);
+        }
+
+        .menu-item.selected {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: #f5576c;
+        }
+
+        .menu-item .item-name {
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .menu-item .item-price {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .menu-item.selected .item-price {
+            color: rgba(255,255,255,0.9);
+        }
+
+        .quantity-control {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 10px;
+        }
+
+        .quantity-btn {
+            background: #f5576c;
+            color: white;
+            border: none;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2em;
+            transition: background 0.3s ease;
+        }
+
+        .quantity-btn:hover {
+            background: #e04560;
+        }
+
+        .quantity-display {
+            font-weight: 600;
+            min-width: 30px;
+            text-align: center;
+        }
+
+        .payment-method {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .payment-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .payment-option:hover {
+            border-color: #f5576c;
+        }
+
+        .payment-option.selected {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-color: #f5576c;
+        }
+
+        .payment-option .payment-icon {
+            font-size: 2em;
+            margin-bottom: 5px;
+        }
+
+        .upi-section {
+            display: none;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .upi-section.active {
+            display: block;
+        }
+
+        .upi-info {
+            background: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .upi-info h4 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .upi-details {
+            display: grid;
+            gap: 10px;
+        }
+
+        .upi-detail {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .upi-detail:last-child {
+            border-bottom: none;
+        }
+
+        .order-summary {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .order-summary h3 {
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .summary-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .summary-item:last-child {
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.2em;
+            color: #f5576c;
+        }
+
+        .priority-badge {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+
+        .submit-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            font-size: 1.2em;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            width: 100%;
+            box-shadow: 0 10px 20px rgba(245, 87, 108, 0.3);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 30px rgba(245, 87, 108, 0.4);
+        }
+
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .success-message {
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .error-message {
+            background: #f44336;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .order-form {
+                padding: 20px;
+            }
+
+            .menu-items {
+                grid-template-columns: 1fr;
+            }
+
+            .payment-method {
+                flex-direction: column;
+            }
+
+            .back-btn {
+                position: static;
+                display: block;
+                width: fit-content;
+                margin-bottom: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Back</a>
+            <h1>🍔 Place Your Order</h1>
+            <p>Select items and customize your order</p>
+        </div>
+
+        <div class="order-form">
+            <form id="orderForm">
+                <div class="form-group">
+                    <label for="studentName">Student Name *</label>
+                    <input type="text" id="studentName" name="studentName" required placeholder="Enter your name">
+                </div>
+
+                <div class="form-group">
+                    <label for="studentId">Student ID *</label>
+                    <input type="text" id="studentId" name="studentId" required placeholder="Enter your student ID">
+                </div>
+
+                <div class="form-group">
+                    <label>Select Menu Items *</label>
+                    <div class="menu-items" id="menuItems">
+                        <div class="menu-item" data-item="burger" data-price="5.99">
+                            <div class="item-name">🍔 Burger</div>
+                            <div class="item-price">$5.99</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('burger', -1)">-</button>
+                                <span class="quantity-display" id="qty-burger">0</span>
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('burger', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="menu-item" data-item="pizza" data-price="8.99">
+                            <div class="item-name">🍕 Pizza Slice</div>
+                            <div class="item-price">$8.99</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('pizza', -1)">-</button>
+                                <span class="quantity-display" id="qty-pizza">0</span>
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('pizza', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="menu-item" data-item="sandwich" data-price="4.99">
+                            <div class="item-name">🥪 Sandwich</div>
+                            <div class="item-price">$4.99</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('sandwich', -1)">-</button>
+                                <span class="quantity-display" id="qty-sandwich">0</span>
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('sandwich', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="menu-item" data-item="salad" data-price="6.99">
+                            <div class="item-name">🥗 Salad</div>
+                            <div class="item-price">$6.99</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('salad', -1)">-</button>
+                                <span class="quantity-display" id="qty-salad">0</span>
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('salad', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="menu-item" data-item="fries" data-price="3.99">
+                            <div class="item-name">🍟 French Fries</div>
+                            <div class="item-price">$3.99</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('fries', -1)">-</button>
+                                <span class="quantity-display" id="qty-fries">0</span>
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('fries', 1)">+</button>
+                            </div>
+                        </div>
+                        <div class="menu-item" data-item="drink" data-price="2.99">
+                            <div class="item-name">🥤 Drink</div>
+                            <div class="item-price">$2.99</div>
+                            <div class="quantity-control">
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('drink', -1)">-</button>
+                                <span class="quantity-display" id="qty-drink">0</span>
+                                <button type="button" class="quantity-btn" onclick="updateQuantity('drink', 1)">+</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Payment Method *</label>
+                    <div class="payment-method">
+                        <div class="payment-option" data-payment="cash" onclick="selectPayment('cash')">
+                            <div class="payment-icon">💵</div>
+                            <div>Cash on Pickup</div>
+                        </div>
+                        <div class="payment-option" data-payment="upi" onclick="selectPayment('upi')">
+                            <div class="payment-icon">📱</div>
+                            <div>UPI Payment</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="upi-section" id="upiSection">
+                    <div class="upi-info">
+                        <h4>📱 UPI Payment Details</h4>
+                        <div class="upi-details">
+                            <div class="upi-detail">
+                                <span>UPI ID:</span>
+                                <strong>canteen@upi</strong>
+                            </div>
+                            <div class="upi-detail">
+                                <span>QR Code:</span>
+                                <span>Available at counter</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="upiTransactionId">UPI Transaction ID *</label>
+                        <input type="text" id="upiTransactionId" name="upiTransactionId" placeholder="Enter your UPI transaction ID">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="specialInstructions">Special Instructions</label>
+                    <textarea id="specialInstructions" name="specialInstructions" rows="3" placeholder="Any special requests or dietary requirements?"></textarea>
+                </div>
+
+                <div class="order-summary">
+                    <h3>Order Summary</h3>
+                    <div id="summaryContent">
+                        <p style="color: #666; text-align: center;">No items selected</p>
+                    </div>
+                </div>
+
+                <div class="error-message" id="errorMessage"></div>
+
+                <button type="submit" class="submit-btn" id="submitBtn" disabled>Place Order</button>
+            </form>
+
+            <div class="success-message" id="successMessage">
+                <h3>✅ Order Placed Successfully!</h3>
+                <p>Your order has been sent to the canteen. You can track its status on the business dashboard.</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const menuPrices = {
+            burger: 5.99,
+            pizza: 8.99,
+            sandwich: 4.99,
+            salad: 6.99,
+            fries: 3.99,
+            drink: 2.99
+        };
+
+        const menuNames = {
+            burger: 'Burger',
+            pizza: 'Pizza Slice',
+            sandwich: 'Sandwich',
+            salad: 'Salad',
+            fries: 'French Fries',
+            drink: 'Drink'
+        };
+
+        let orderQuantities = {};
+        let selectedPayment = null;
+
+        function updateQuantity(item, change) {
+            const currentQty = orderQuantities[item] || 0;
+            const newQty = Math.max(0, currentQty + change);
+            
+            if (newQty === 0) {
+                delete orderQuantities[item];
+            } else {
+                orderQuantities[item] = newQty;
+            }
+
+            document.getElementById(`qty-${item}`).textContent = newQty;
+            
+            const menuItem = document.querySelector(`[data-item="${item}"]`);
+            if (newQty > 0) {
+                menuItem.classList.add('selected');
+            } else {
+                menuItem.classList.remove('selected');
+            }
+
+            updateOrderSummary();
+            updateSubmitButton();
+        }
+
+        function selectPayment(method) {
+            selectedPayment = method;
+            
+            // Update UI
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.querySelector(`[data-payment="${method}"]`).classList.add('selected');
+            
+            // Show/hide UPI section
+            const upiSection = document.getElementById('upiSection');
+            if (method === 'upi') {
+                upiSection.classList.add('active');
+            } else {
+                upiSection.classList.remove('active');
+            }
+            
+            updateSubmitButton();
+        }
+
+        function updateOrderSummary() {
+            const summaryContent = document.getElementById('summaryContent');
+            const items = Object.entries(orderQuantities);
+            
+            if (items.length === 0) {
+                summaryContent.innerHTML = '<p style="color: #666; text-align: center;">No items selected</p>';
+                return;
+            }
+
+            let html = '';
+            let total = 0;
+
+            items.forEach(([item, qty]) => {
+                const itemTotal = menuPrices[item] * qty;
+                total += itemTotal;
+                html += `
+                    <div class="summary-item">
+                        <span>${menuNames[item]} x${qty}</span>
+                        <span>$${itemTotal.toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            // Add payment method info
+            if (selectedPayment === 'upi') {
+                html += `
+                    <div class="summary-item">
+                        <span>Payment Method</span>
+                        <span>UPI (Priority Order) <span class="priority-badge">HIGH PRIORITY</span></span>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="summary-item">
+                        <span>Payment Method</span>
+                        <span>Cash on Pickup</span>
+                    </div>
+                `;
+            }
+
+            html += `
+                <div class="summary-item">
+                    <span>Total</span>
+                    <span>$${total.toFixed(2)}</span>
+                </div>
+            `;
+
+            summaryContent.innerHTML = html;
+        }
+
+        function updateSubmitButton() {
+            const submitBtn = document.getElementById('submitBtn');
+            const studentName = document.getElementById('studentName').value.trim();
+            const studentId = document.getElementById('studentId').value.trim();
+            const hasItems = Object.keys(orderQuantities).length > 0;
+            const upiTransactionId = document.getElementById('upiTransactionId').value.trim();
+            
+            let isValid = studentName && studentId && hasItems && selectedPayment;
+            
+            if (selectedPayment === 'upi') {
+                isValid = isValid && upiTransactionId;
+            }
+            
+            submitBtn.disabled = !isValid;
+        }
+
+        function generateOrderId() {
+            return 'ORD' + Date.now() + Math.random().toString(36).substr(2, 5).toUpperCase();
+        }
+
+        function saveOrder(orderData) {
+            let orders = JSON.parse(localStorage.getItem('canteenOrders') || '[]');
+            orders.push(orderData);
+            localStorage.setItem('canteenOrders', JSON.stringify(orders));
+        }
+
+        function showError(message) {
+            const errorElement = document.getElementById('errorMessage');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+            setTimeout(() => {
+                errorElement.style.display = 'none';
+            }, 5000);
+        }
+
+        document.getElementById('orderForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const studentName = document.getElementById('studentName').value.trim();
+            const studentId = document.getElementById('studentId').value.trim();
+            const specialInstructions = document.getElementById('specialInstructions').value.trim();
+            const upiTransactionId = document.getElementById('upiTransactionId').value.trim();
+            
+            const orderItems = Object.entries(orderQuantities).map(([item, qty]) => ({
+                item: menuNames[item],
+                quantity: qty,
+                price: menuPrices[item],
+                total: menuPrices[item] * qty
+            }));
+
+            const orderTotal = orderItems.reduce((sum, item) => sum + item.total, 0);
+
+            const orderData = {
+                orderId: generateOrderId(),
+                studentName: studentName,
+                studentId: studentId,
+                items: orderItems,
+                total: orderTotal,
+                specialInstructions: specialInstructions,
+                paymentMethod: selectedPayment,
+                upiTransactionId: selectedPayment === 'upi' ? upiTransactionId : null,
+                isPriority: selectedPayment === 'upi',
+                paymentStatus: selectedPayment === 'upi' ? 'Pending Verification' : 'Pending',
+                status: 'Pending',
+                timestamp: new Date().toISOString(),
+                statusHistory: [
+                    {
+                        status: 'Pending',
+                        timestamp: new Date().toISOString(),
+                        note: selectedPayment === 'upi' ? 'Order placed with UPI payment (pending verification)' : 'Order placed with cash payment'
+                    }
+                ]
+            };
+
+            saveOrder(orderData);
+
+            // Show success message
+            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('orderForm').reset();
+            
+            // Reset quantities and payment
+            orderQuantities = {};
+            selectedPayment = null;
+            Object.keys(menuPrices).forEach(item => {
+                document.getElementById(`qty-${item}`).textContent = '0';
+                document.querySelector(`[data-item="${item}"]`).classList.remove('selected');
+            });
+            document.querySelectorAll('.payment-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+            document.getElementById('upiSection').classList.remove('active');
+            
+            updateOrderSummary();
+            updateSubmitButton();
+
+            // Hide success message after 5 seconds
+            setTimeout(() => {
+                document.getElementById('successMessage').style.display = 'none';
+            }, 5000);
+        });
+
+        // Add input event listeners for real-time validation
+        document.getElementById('studentName').addEventListener('input', updateSubmitButton);
+        document.getElementById('studentId').addEventListener('input', updateSubmitButton);
+        document.getElementById('upiTransactionId').addEventListener('input', updateSubmitButton);
+    </script>
+</body>

@@ -1,0 +1,955 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Canteen Staff Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+
+        .back-btn {
+            position: absolute;
+            top: 30px;
+            left: 30px;
+            background: rgba(255,255,255,0.2);
+            color: white;
+            border: 2px solid white;
+            padding: 10px 20px;
+            border-radius: 25px;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: white;
+            color: #4facfe;
+        }
+
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.08);
+            transition: transform 0.3s ease;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-card.pending .stat-number { color: #ff9800; }
+        .stat-card.preparing .stat-number { color: #2196f3; }
+        .stat-card.ready .stat-number { color: #4caf50; }
+        .stat-card.completed .stat-number { color: #9c27b0; }
+
+        .controls {
+            padding: 20px 30px;
+            background: white;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+
+        .filter-btn:hover {
+            border-color: #4facfe;
+        }
+
+        .filter-btn.active {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border-color: #4facfe;
+        }
+
+        .refresh-btn {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(79, 172, 254, 0.3);
+        }
+
+        .orders-container {
+            padding: 30px;
+            max-height: 600px;
+            overflow-y: auto;
+        }
+
+        .order-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            transition: all 0.3s ease;
+            animation: slideIn 0.5s ease;
+        }
+
+        .order-card.priority {
+            border-color: #ff6b6b;
+            box-shadow: 0 5px 20px rgba(255, 107, 107, 0.2);
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .order-card:hover {
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+
+        .order-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .order-info h3 {
+            color: #333;
+            margin-bottom: 5px;
+            font-size: 1.3em;
+        }
+
+        .order-meta {
+            display: flex;
+            gap: 15px;
+            color: #666;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+        }
+
+        .order-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-pending {
+            background: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+
+        .status-preparing {
+            background: #cce5ff;
+            color: #004085;
+            border: 1px solid #99d6ff;
+        }
+
+        .status-ready {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .status-completed {
+            background: #e2e3e5;
+            color: #383d41;
+            border: 1px solid #d6d8db;
+        }
+
+        .priority-indicator {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ff8e53 100%);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.7; }
+            100% { opacity: 1; }
+        }
+
+        .payment-info {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4facfe;
+        }
+
+        .payment-info.verified {
+            border-left-color: #4caf50;
+            background: #e8f5e8;
+        }
+
+        .payment-info.pending {
+            border-left-color: #ff9800;
+            background: #fff8e1;
+        }
+
+        .payment-info.mismatch {
+            border-left-color: #f44336;
+            background: #ffebee;
+        }
+
+        .payment-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 5px;
+        }
+
+        .verify-btn {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 15px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .verify-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 3px 10px rgba(76, 175, 80, 0.3);
+        }
+
+        .verify-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .order-items {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .order-items h4 {
+            margin-bottom: 10px;
+            color: #333;
+        }
+
+        .item-list {
+            display: grid;
+            gap: 8px;
+        }
+
+        .item-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 5px 0;
+        }
+
+        .item-name {
+            font-weight: 500;
+        }
+
+        .item-details {
+            color: #666;
+            font-size: 0.9em;
+        }
+
+        .order-total {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #4facfe;
+            text-align: right;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .special-instructions {
+            background: #fff3cd;
+            border: 1px solid #ffeaa7;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 15px;
+            font-style: italic;
+            color: #856404;
+        }
+
+        .status-controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .status-btn {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+        }
+
+        .status-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        .btn-preparing {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            color: white;
+        }
+
+        .btn-ready {
+            background: linear-gradient(135deg, #4caf50 0%, #388e3c 100%);
+            color: white;
+        }
+
+        .btn-completed {
+            background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+            color: white;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-state-icon {
+            font-size: 4em;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+        .empty-state h3 {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+        }
+
+        .timestamp {
+            font-size: 0.8em;
+            color: #999;
+        }
+
+        .transaction-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .close-modal {
+            background: none;
+            border: none;
+            font-size: 1.5em;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .transaction-form {
+            display: grid;
+            gap: 15px;
+        }
+
+        .transaction-list {
+            max-height: 200px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 10px;
+        }
+
+        .transaction-item {
+            padding: 8px;
+            border-bottom: 1px solid #f0f0f0;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+
+        .transaction-item:hover {
+            background: #f8f9fa;
+        }
+
+        .transaction-item:last-child {
+            border-bottom: none;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 15px;
+            }
+
+            .header {
+                padding: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .back-btn {
+                position: static;
+                display: block;
+                width: fit-content;
+                margin-bottom: 15px;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 20px;
+                gap: 15px;
+            }
+
+            .controls {
+                padding: 15px 20px;
+            }
+
+            .orders-container {
+                padding: 20px;
+            }
+
+            .order-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .status-controls {
+                width: 100%;
+            }
+
+            .status-btn {
+                flex: 1;
+                min-width: 100px;
+            }
+        }
+
+        /* Scrollbar styling */
+        .orders-container::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .orders-container::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .orders-container::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            border-radius: 10px;
+        }
+
+        .orders-container::-webkit-scrollbar-thumb:hover {
+            background: linear-gradient(135deg, #3d8bfd 0%, #00d4fe 100%);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <a href="index.html" class="back-btn">← Back</a>
+            <h1>👨‍🍳 Canteen Dashboard</h1>
+            <p>Manage and track customer orders</p>
+        </div>
+
+        <div class="stats-container">
+            <div class="stat-card pending">
+                <div class="stat-number" id="pendingCount">0</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card preparing">
+                <div class="stat-number" id="preparingCount">0</div>
+                <div class="stat-label">Preparing</div>
+            </div>
+            <div class="stat-card ready">
+                <div class="stat-number" id="readyCount">0</div>
+                <div class="stat-label">Ready</div>
+            </div>
+            <div class="stat-card completed">
+                <div class="stat-number" id="completedCount">0</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">All Orders</button>
+                <button class="filter-btn" data-filter="pending">Pending</button>
+                <button class="filter-btn" data-filter="preparing">Preparing</button>
+                <button class="filter-btn" data-filter="ready">Ready</button>
+                <button class="filter-btn" data-filter="completed">Completed</button>
+            </div>
+            <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
+        </div>
+
+        <div class="orders-container" id="ordersContainer">
+            <div class="empty-state">
+                <div class="empty-state-icon">📋</div>
+                <h3>No orders yet</h3>
+                <p>Orders will appear here when students place them</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transaction Verification Modal -->
+    <div class="transaction-modal" id="transactionModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>🔍 Verify UPI Transaction</h3>
+                <button class="close-modal" onclick="closeTransactionModal()">×</button>
+            </div>
+            <div class="transaction-form">
+                <div class="form-group">
+                    <label for="transactionAmount">Transaction Amount ($)</label>
+                    <input type="number" id="transactionAmount" step="0.01" placeholder="Enter received amount">
+                </div>
+                <div class="form-group">
+                    <label for="transactionNote">Verification Note</label>
+                    <input type="text" id="transactionNote" placeholder="Add verification notes">
+                </div>
+                <div class="form-group">
+                    <label>Recent Transactions (for reference)</label>
+                    <div class="transaction-list" id="transactionList">
+                        <div class="transaction-item">TXN12345 - $25.99 - Verified</div>
+                        <div class="transaction-item">TXN12346 - $15.50 - Pending</div>
+                        <div class="transaction-item">TXN12347 - $8.99 - Verified</div>
+                    </div>
+                </div>
+                <button class="verify-btn" onclick="confirmVerification()">Confirm Verification</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentFilter = 'all';
+        let orders = [];
+        let currentVerifyingOrder = null;
+
+        function loadOrders() {
+            orders = JSON.parse(localStorage.getItem('canteenOrders') || '[]');
+            updateStats();
+            renderOrders();
+        }
+
+        function updateStats() {
+            const stats = {
+                pending: 0,
+                preparing: 0,
+                ready: 0,
+                completed: 0
+            };
+
+            orders.forEach(order => {
+                stats[order.status.toLowerCase()]++;
+            });
+
+            document.getElementById('pendingCount').textContent = stats.pending;
+            document.getElementById('preparingCount').textContent = stats.preparing;
+            document.getElementById('readyCount').textContent = stats.ready;
+            document.getElementById('completedCount').textContent = stats.completed;
+        }
+
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            const now = new Date();
+            const diffMs = now - date;
+            const diffMins = Math.floor(diffMs / 60000);
+
+            if (diffMins < 1) return 'Just now';
+            if (diffMins < 60) return `${diffMins} min ago`;
+            if (diffMins < 1440) return `${Math.floor(diffMins / 60)} hours ago`;
+            return date.toLocaleDateString();
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            const orderIndex = orders.findIndex(order => order.orderId === orderId);
+            if (orderIndex !== -1) {
+                orders[orderIndex].status = newStatus;
+                orders[orderIndex].statusHistory.push({
+                    status: newStatus,
+                    timestamp: new Date().toISOString(),
+                    note: `Status changed to ${newStatus}`
+                });
+                
+                localStorage.setItem('canteenOrders', JSON.stringify(orders));
+                loadOrders();
+            }
+        }
+
+        function openTransactionModal(orderId) {
+            currentVerifyingOrder = orderId;
+            document.getElementById('transactionModal').style.display = 'flex';
+            document.getElementById('transactionAmount').value = '';
+            document.getElementById('transactionNote').value = '';
+        }
+
+        function closeTransactionModal() {
+            document.getElementById('transactionModal').style.display = 'none';
+            currentVerifyingOrder = null;
+        }
+
+        function confirmVerification() {
+            if (!currentVerifyingOrder) return;
+
+            const amount = parseFloat(document.getElementById('transactionAmount').value);
+            const note = document.getElementById('transactionNote').value;
+            const orderIndex = orders.findIndex(order => order.orderId === currentVerifyingOrder);
+
+            if (orderIndex !== -1) {
+                const order = orders[orderIndex];
+                const expectedAmount = order.total;
+                
+                let verificationStatus = 'verified';
+                let statusMessage = 'Payment verified successfully';
+                
+                if (Math.abs(amount - expectedAmount) > 0.01) {
+                    verificationStatus = 'mismatch';
+                    statusMessage = `Amount mismatch: Expected $${expectedAmount.toFixed(2)}, Received $${amount.toFixed(2)}`;
+                }
+
+                order.paymentStatus = verificationStatus;
+                order.verificationDetails = {
+                    verifiedAmount: amount,
+                    expectedAmount: expectedAmount,
+                    note: note,
+                    verifiedBy: 'Staff',
+                    verifiedAt: new Date().toISOString(),
+                    status: verificationStatus
+                };
+
+                order.statusHistory.push({
+                    status: 'Payment Verified',
+                    timestamp: new Date().toISOString(),
+                    note: statusMessage
+                });
+
+                localStorage.setItem('canteenOrders', JSON.stringify(orders));
+                closeTransactionModal();
+                loadOrders();
+            }
+        }
+
+        function renderOrders() {
+            const container = document.getElementById('ordersContainer');
+            
+            const filteredOrders = currentFilter === 'all' 
+                ? orders 
+                : orders.filter(order => order.status.toLowerCase() === currentFilter);
+
+            if (filteredOrders.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <h3>No ${currentFilter === 'all' ? '' : currentFilter} orders</h3>
+                        <p>${currentFilter === 'all' ? 'Orders will appear here when students place them' : `No ${currentFilter} orders at the moment`}</p>
+                    </div>
+                `;
+                return;
+            }
+
+            // Sort orders: priority orders first, then by timestamp (newest first)
+            filteredOrders.sort((a, b) => {
+                if (a.isPriority && !b.isPriority) return -1;
+                if (!a.isPriority && b.isPriority) return 1;
+                return new Date(b.timestamp) - new Date(a.timestamp);
+            });
+
+            const ordersHTML = filteredOrders.map(order => {
+                const statusClass = `status-${order.status.toLowerCase()}`;
+                const itemsHTML = order.items.map(item => `
+                    <div class="item-row">
+                        <span class="item-name">${item.item} x${item.quantity}</span>
+                        <span class="item-details">$${item.total.toFixed(2)}</span>
+                    </div>
+                `).join('');
+
+                const statusButtons = getStatusButtons(order);
+                const paymentInfo = getPaymentInfo(order);
+                const priorityBadge = order.isPriority ? '<span class="priority-indicator">⚡ PRIORITY</span>' : '';
+
+                return `
+                    <div class="order-card ${order.isPriority ? 'priority' : ''}">
+                        <div class="order-header">
+                            <div class="order-info">
+                                <h3>Order #${order.orderId} ${priorityBadge}</h3>
+                                <div class="order-meta">
+                                    <span>👤 ${order.studentName}</span>
+                                    <span>🆔 ${order.studentId}</span>
+                                    <span class="timestamp">🕒 ${formatTimestamp(order.timestamp)}</span>
+                                </div>
+                            </div>
+                            <div class="order-status ${statusClass}">
+                                ${order.status}
+                            </div>
+                        </div>
+
+                        ${paymentInfo}
+
+                        ${order.specialInstructions ? `
+                            <div class="special-instructions">
+                                <strong>📝 Special Instructions:</strong> ${order.specialInstructions}
+                            </div>
+                        ` : ''}
+
+                        <div class="order-items">
+                            <h4>Order Items:</h4>
+                            <div class="item-list">
+                                ${itemsHTML}
+                            </div>
+                            <div class="order-total">
+                                Total: $${order.total.toFixed(2)}
+                            </div>
+                        </div>
+
+                        <div class="status-controls">
+                            ${statusButtons}
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            container.innerHTML = ordersHTML;
+        }
+
+        function getPaymentInfo(order) {
+            if (order.paymentMethod === 'upi') {
+                let paymentClass = 'pending';
+                let paymentText = 'Pending Verification';
+                let verifyButton = '';
+
+                if (order.paymentStatus === 'verified') {
+                    paymentClass = 'verified';
+                    paymentText = '✅ Verified';
+                } else if (order.paymentStatus === 'mismatch') {
+                    paymentClass = 'mismatch';
+                    paymentText = '❌ Amount Mismatch';
+                } else {
+                    verifyButton = `
+                        <div class="payment-details">
+                            <button class="verify-btn" onclick="openTransactionModal('${order.orderId}')">
+                                🔍 Verify Payment
+                            </button>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="payment-info ${paymentClass}">
+                        <div class="payment-details">
+                            <span><strong>📱 UPI Payment:</strong> ${paymentText}</span>
+                        </div>
+                        <div class="payment-details">
+                            <span>Transaction ID: ${order.upiTransactionId || 'N/A'}</span>
+                        </div>
+                        ${verifyButton}
+                        ${order.verificationDetails ? `
+                            <div class="payment-details">
+                                <small>Verified: $${order.verificationDetails.verifiedAmount?.toFixed(2) || 'N/A'}</small>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+            } else {
+                return `
+                    <div class="payment-info">
+                        <div class="payment-details">
+                            <span><strong>💵 Payment:</strong> Cash on Pickup</span>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function getStatusButtons(order) {
+            const status = order.status.toLowerCase();
+            let buttons = '';
+
+            // For UPI orders, don't allow status changes until payment is verified
+            if (order.paymentMethod === 'upi' && order.paymentStatus !== 'verified') {
+                buttons = `
+                    <span style="color: #ff9800; font-weight: 600;">⏳ Awaiting Payment Verification</span>
+                `;
+            } else if (status === 'pending') {
+                buttons = `
+                    <button class="status-btn btn-preparing" onclick="updateOrderStatus('${order.orderId}', 'Preparing')">
+                        👨‍🍳 Start Preparing
+                    </button>
+                `;
+            } else if (status === 'preparing') {
+                buttons = `
+                    <button class="status-btn btn-ready" onclick="updateOrderStatus('${order.orderId}', 'Ready for Pickup')">
+                        ✅ Mark as Ready
+                    </button>
+                `;
+            } else if (status === 'ready for pickup') {
+                buttons = `
+                    <button class="status-btn btn-completed" onclick="updateOrderStatus('${order.orderId}', 'Completed')">
+                        🎉 Complete Order
+                    </button>
+                `;
+            } else if (status === 'completed') {
+                buttons = `
+                    <span style="color: #4caf50; font-weight: 600;">✅ Order Completed</span>
+                `;
+            }
+
+            return buttons;
+        }
+
+        // Filter button event listeners
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentFilter = this.dataset.filter;
+                renderOrders();
+            });
+        });
+
+        // Auto-refresh every 30 seconds
+        setInterval(loadOrders, 30000);
+
+        // Initial load
+        loadOrders();
+
+        // Listen for storage changes (for real-time updates across tabs)
+        window.addEventListener('storage', function(e) {
+            if (e.key === 'canteenOrders') {
+                loadOrders();
+            }
+        });
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('transactionModal');
+            if (event.target === modal) {
+                closeTransactionModal();
+            }
+        }
+    </script>
+</body>
+</html>
