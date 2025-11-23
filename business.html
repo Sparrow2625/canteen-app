@@ -604,6 +604,7 @@
                 <button class="filter-btn" data-filter="completed">Completed</button>
             </div>
             <button class="refresh-btn" onclick="loadOrders()">🔄 Refresh</button>
+            <button class="refresh-btn" onclick="clearCompletedOrders()" style="background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);">🗑️ Clear Completed</button>
         </div>
 
         <div class="orders-container" id="ordersContainer">
@@ -750,6 +751,29 @@
                 localStorage.setItem('canteenOrders', JSON.stringify(orders));
                 closeTransactionModal();
                 loadOrders();
+            }
+        }
+
+        function clearCompletedOrders() {
+            const completedOrders = orders.filter(order => order.status.toLowerCase() === 'completed');
+            
+            if (completedOrders.length === 0) {
+                alert('No completed orders to clear.');
+                return;
+            }
+
+            if (confirm(`Are you sure you want to delete ${completedOrders.length} completed order(s)? This action cannot be undone.`)) {
+                // Remove completed orders from the array
+                orders = orders.filter(order => order.status.toLowerCase() !== 'completed');
+                
+                // Update localStorage
+                localStorage.setItem('canteenOrders', JSON.stringify(orders));
+                
+                // Reload the display
+                loadOrders();
+                
+                // Show success message
+                alert(`Successfully cleared ${completedOrders.length} completed order(s).`);
             }
         }
 

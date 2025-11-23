@@ -346,7 +346,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <a href="index.html" class="back-btn">← Back</a>
+            <a href="dashboard.html" class="back-btn">← Dashboard</a>
             <h1>🍔 Place Your Order</h1>
             <p>Select items and customize your order</p>
         </div>
@@ -502,6 +502,47 @@
 
         let orderQuantities = {};
         let selectedPayment = null;
+        let currentUser = null;
+
+        // Check user authentication and load user data
+        function checkAuthentication() {
+            currentUser = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (!currentUser) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            
+            // Pre-fill user information
+            document.getElementById('studentName').value = currentUser.name;
+            document.getElementById('studentId').value = currentUser.studentId;
+            document.getElementById('studentName').readOnly = true;
+            document.getElementById('studentId').readOnly = true;
+            
+            // Check for reorder data
+            const reorderData = JSON.parse(localStorage.getItem('reorderData') || 'null');
+            if (reorderData) {
+                // Load reorder items
+                reorderData.items.forEach(item => {
+                    const itemKey = Object.keys(menuNames).find(key => menuNames[key] === item.item);
+                    if (itemKey) {
+                        orderQuantities[itemKey] = item.quantity;
+                        document.getElementById(`qty-${itemKey}`).textContent = item.quantity;
+                        document.querySelector(`[data-item="${itemKey}"]`).classList.add('selected');
+                    }
+                });
+                
+                if (reorderData.specialInstructions) {
+                    document.getElementById('specialInstructions').value = reorderData.specialInstructions;
+                }
+                
+                // Clear reorder data
+                localStorage.removeItem('reorderData');
+                
+                updateOrderSummary();
+            }
+            
+            return true;
+        }
 
         function updateQuantity(item, change) {
             const currentQty = orderQuantities[item] || 0;
@@ -701,5 +742,12 @@
         document.getElementById('studentName').addEventListener('input', updateSubmitButton);
         document.getElementById('studentId').addEventListener('input', updateSubmitButton);
         document.getElementById('upiTransactionId').addEventListener('input', updateSubmitButton);
+
+        // Initialize page - check authentication
+        window.addEventListener('load', function() {
+            if (checkAuthentication()) {
+                updateSubmitButton();
+            }
+        });
     </script>
 </body>
